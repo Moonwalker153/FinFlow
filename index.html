@@ -1,2 +1,293 @@
-<!doctype html><html><head><meta charset="utf-8"><title>OK</title></head>
-<body><h1>OK</h1></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FlowScore — MSME Supplier Credit Scoring Demo</title>
+  <style>
+    :root{ --bg:#0f172a; --panel:#111827; --muted:#94a3b8; --text:#e5e7eb; --brand:#22c55e; --brand2:#06b6d4; --warn:#f59e0b; --bad:#ef4444; --good:#10b981; --border:#1f2937; }
+    *{box-sizing:border-box}
+    body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial; background:linear-gradient(180deg,#0b1220 0%, #0f172a 100%); color:var(--text); }
+    header{position:sticky; top:0; z-index:10; border-bottom:1px solid var(--border); background:rgba(15,23,42,.75); backdrop-filter:blur(10px)}
+    .container{max-width:1100px; margin:0 auto; padding:16px}
+    .nav{display:flex; gap:12px; align-items:center; justify-content:space-between}
+    .brand{font-weight:700; letter-spacing:.2px}
+    .tabs{display:flex; gap:8px; flex-wrap:wrap}
+    .tab{border:1px solid var(--border); padding:8px 12px; border-radius:999px; cursor:pointer; color:var(--muted); background:#0b1326}
+    .tab.active{color:#fff; background:#0c1b34; border-color:#234}
+    main{padding:24px 0}
+    .card{border:1px solid var(--border); background:rgba(17,24,39,.6); border-radius:16px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    h1{font-size:28px; margin:0 0 6px}
+    h2{font-size:22px; margin:20px 0 10px}
+    h3{font-size:16px; margin:14px 0 8px; color:var(--muted)}
+    p{color:#cbd5e1; line-height:1.6}
+    .grid{display:grid; gap:14px}
+    .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .label{font-size:13px; color:#a8b3c9; margin-bottom:6px; display:block}
+    input, select{width:100%; border:1px solid var(--border); background:#0b1326; color:#e2e8f0; padding:10px 12px; border-radius:10px; outline:none}
+    .row{display:flex; gap:10px; flex-wrap:wrap}
+    .btn{border:1px solid #234; background:#0c1b34; color:#e6f8ff; padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600}
+    .btn.primary{background:linear-gradient(90deg,var(--brand2),var(--brand)); border-color:transparent; color:#001b18}
+    .btn.ghost{background:transparent}
+    .pill{display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; border:1px solid var(--border); color:#c7d2fe}
+    .flow{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:12px 0 6px}
+    .node{padding:8px 14px; border-radius:999px; border:1px solid var(--border); background:#0b1326}
+    .arrow{width:26px; height:2px; background:var(--muted); position:relative}
+    .arrow::after{content:""; position:absolute; right:-4px; top:-3px; border-left:6px solid var(--muted); border-top:4px solid transparent; border-bottom:4px solid transparent}
+    .scoreBox{display:flex; align-items:center; gap:16px; padding:14px; border-radius:12px; border:1px solid var(--border); background:#0b1326; margin-top:10px}
+    .scoreBadge{min-width:76px; text-align:center; font-size:22px; font-weight:800; padding:10px 0; border-radius:10px; background:#081423; border:1px solid #1b2a46}
+    .band{font-weight:700}.ok{color:var(--warn)}.bad{color:var(--bad)}.good{color:var(--good)}
+    .muted{color:var(--muted)} .small{font-size:12px}
+    .table{width:100%; border-collapse:collapse; font-size:14px; margin-top:10px}
+    .table th,.table td{border:1px solid var(--border); padding:8px}
+    .right{text-align:right}
+    @media (max-width:900px){.grid-3{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <div class="brand">FlowScore — Supplier • Bank • Retailer</div>
+      <div class="tabs">
+        <button class="tab active" data-tab="home">Home</button>
+        <button class="tab" data-tab="how">How it Works</button>
+        <button class="tab" data-tab="calc">Score Calculator</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card" id="home">
+      <h1>Platform concept: Supplier ↔ Retailer ↔ Bank</h1>
+      <p>This demo shows a simple supply chain finance loop and a lightweight supplier credit scoring model. Use the Score Calculator tab to enter supplier details and compute a score out of 100 with a factor breakdown.</p>
+      <h3>Flow</h3>
+      <div class="flow">
+        <span class="node">Supplier</span><span class="arrow"></span>
+        <span class="node">Retailer (receives goods)</span><span class="arrow"></span>
+        <span class="node">Bank (pays Supplier)</span><span class="arrow"></span>
+        <span class="node">Supplier (working capital)</span>
+      </div>
+      <p class="small muted">In reverse-factoring flows, the retailer validates invoices; the bank finances the supplier; settlement occurs on due date while the supplier gets early cash.</p>
+    </section>
+
+    <section class="card" id="how" style="display:none; margin-top:14px">
+      <h2>How it Works</h2>
+      <p>The calculator applies weights to MSME credit factors (vintage, revenues and growth, leverage and cashflow, compliance, operations, and digital adoption). Each input becomes a 0–100 sub-score; weighted sub-scores produce the overall FlowScore.</p>
+      <table class="table">
+        <thead><tr><th>Factor</th><th>Weight</th><th>Description</th></tr></thead>
+        <tbody id="weightsTable"></tbody>
+      </table>
+      <p class="small muted">Demo scoring only. Not financial advice.</p>
+    </section>
+
+    <section class="card" id="calc" style="display:none; margin-top:14px">
+      <h2>Supplier Credit Score Calculator</h2>
+      <p class="small muted">Enter numbers within reasonable ranges; all fields contribute to the score.</p>
+
+      <div class="grid grid-3" id="formGrid">
+        <div><label class="label">Business Type</label>
+          <select id="businessType">
+            <option value="manufacturing">Manufacturing</option>
+            <option value="trading">Trading</option>
+            <option value="services">Services</option>
+          </select>
+        </div>
+        <div><label class="label">Years in Business (0–30)</label><input id="years" type="number" min="0" max="30" placeholder="6"></div>
+        <div><label class="label">Annual Revenue (₹ lakh)</label><input id="revenue" type="number" min="0" placeholder="250"></div>
+        <div><label class="label">YoY Revenue Growth (%)</label><input id="revGrowth" type="number" min="-100" max="300" placeholder="18"></div>
+        <div><label class="label">GST Filed Months (0–12)</label><input id="gstMonths" type="number" min="0" max="12" placeholder="12"></div>
+        <div><label class="label">Digital Transaction Share (%)</label><input id="digitalShare" type="number" min="0" max="100" placeholder="80"></div>
+        <div><label class="label">Debt-to-Equity (D/E)</label><input id="de" type="number" min="0" step="0.01" placeholder="0.8"></div>
+        <div><label class="label">DSCR</label><input id="dscr" type="number" min="0" step="0.01" placeholder="1.6"></div>
+        <div><label class="label">Average Invoice Size (₹ lakh)</label><input id="avgInvoice" type="number" min="0" step="0.01" placeholder="4"></div>
+        <div><label class="label">On-time Delivery Rate (%)</label><input id="otd" type="number" min="0" max="100" placeholder="95"></div>
+        <div><label class="label">Defect/Return Rate (%)</label><input id="defect" type="number" min="0" max="100" placeholder="1.5"></div>
+        <div><label class="label">Receivables Days (0–180)</label><input id="dso" type="number" min="0" max="365" placeholder="45"></div>
+        <div><label class="label">Inventory Days (0–180)</label><input id="dio" type="number" min="0" max="365" placeholder="35"></div>
+        <div><label class="label">Cheque Bounces (last 6 months)</label><input id="bounces" type="number" min="0" max="50" placeholder="0"></div>
+        <div><label class="label">Anchor Buyer Present</label>
+          <select id="anchor"><option value="yes">Yes (rated buyer)</option><option value="no">No</option></select>
+        </div>
+        <div><label class="label">E-Invoicing Adoption</label>
+          <select id="einv"><option value="yes">Yes (compliant)</option><option value="no">No</option></select>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:16px">
+        <button class="btn primary" id="calcBtn">Calculate Score</button>
+        <button class="btn" id="printBtn" title="Print or Save as PDF">Print / Save PDF</button>
+        <button class="btn ghost" id="resetBtn">Reset</button>
+        <span class="pill">Demo only</span>
+      </div>
+
+      <div class="scoreBox" id="result" style="display:none">
+        <div class="scoreBadge" id="scoreNum">—</div>
+        <div>
+          <div>Overall FlowScore: <span id="scoreBand" class="band">—</span></div>
+          <div class="small muted" id="scoreNote"></div>
+        </div>
+      </div>
+
+      <div id="breakdown" style="display:none; margin-top:12px">
+        <h3>Factor Breakdown</h3>
+        <table class="table">
+          <thead><tr><th>Factor</th><th class="right">Sub-Score</th><th class="right">Weight</th><th class="right">Weighted</th></tr></thead>
+          <tbody id="breakRows"></tbody>
+          <tfoot><tr><th colspan="3" class="right">Total</th><th class="right" id="totalWeighted">0.0</th></tr></tfoot>
+        </table>
+      </div>
+    </section>
+
+    <footer class="muted small" style="margin-top:14px">© FlowScore demo. Local-only calculator for educational purposes.</footer>
+  </main>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const sections = { home:document.getElementById('home'), how:document.getElementById('how'), calc:document.getElementById('calc') };
+    tabs.forEach(t=>t.addEventListener('click', ()=>{
+      tabs.forEach(x=>x.classList.remove('active')); t.classList.add('active');
+      const id = t.dataset.tab;
+      Object.entries(sections).forEach(([k,el])=> el.style.display = (k===id)?'':'none');
+      if(id==='how') renderWeights();
+    }));
+
+    const WEIGHTS = [
+      {key:'vintage', label:'Business Vintage (years)', weight:10},
+      {key:'revenue', label:'Annual Revenue', weight:10},
+      {key:'growth',  label:'YoY Revenue Growth', weight:8},
+      {key:'gst',     label:'GST Compliance (months filed)', weight:8},
+      {key:'digital', label:'Digital Transaction Share', weight:6},
+      {key:'de',      label:'Leverage (D/E) — lower better', weight:8},
+      {key:'dscr',    label:'DSCR — higher better', weight:10},
+      {key:'invoice', label:'Average Invoice Size', weight:4},
+      {key:'otd',     label:'On-time Delivery %', weight:8},
+      {key:'defect',  label:'Defect/Return % — lower better', weight:4},
+      {key:'dso',     label:'Receivables Days — lower better', weight:6},
+      {key:'dio',     label:'Inventory Days — lower better', weight:4},
+      {key:'bounces', label:'Cheque Bounces — fewer better', weight:6},
+      {key:'anchor',  label:'Anchor Buyer Present', weight:4},
+      {key:'einv',    label:'E-Invoicing Adoption', weight:4},
+    ];
+
+    function renderWeights(){
+      const tb = document.getElementById('weightsTable'); tb.innerHTML='';
+      const desc = {
+        vintage:'Years of consistent operations', revenue:'Scale of business activity',
+        growth:'Momentum and expansion trajectory', gst:'Regulatory compliance signal',
+        digital:'Formalization and traceability', de:'Capital structure risk',
+        dscr:'Cash-flow cushion to service debt', invoice:'Ticket size / buyer quality proxy',
+        otd:'Operational reliability', defect:'Quality consistency',
+        dso:'Cash conversion speed', dio:'Inventory holding efficiency',
+        bounces:'Banking discipline', anchor:'Credit enhancement via rated buyer',
+        einv:'System/process maturity'
+      };
+      WEIGHTS.forEach(w=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td>${w.label}</td><td>${w.weight}%</td><td>${desc[w.key]}</td>`;
+        tb.appendChild(tr);
+      });
+    }
+
+    const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+    const invLinear=(v,min,max)=> isNaN(v)?0 : v<=min?100 : v>=max?0 : (max-v)*100/(max-min);
+    const linear=(v,min,max)=>   isNaN(v)?0 : v<=min?0   : v>=max?100: (v-min)*100/(max-min);
+    const yesNo = v=> v==='yes'?100:0;
+
+    function getInputs(){
+      return {
+        businessType: document.getElementById('businessType').value,
+        years: parseFloat(document.getElementById('years').value),
+        revenue: parseFloat(document.getElementById('revenue').value),
+        revGrowth: parseFloat(document.getElementById('revGrowth').value),
+        gstMonths: parseFloat(document.getElementById('gstMonths').value),
+        digitalShare: parseFloat(document.getElementById('digitalShare').value),
+        de: parseFloat(document.getElementById('de').value),
+        dscr: parseFloat(document.getElementById('dscr').value),
+        avgInvoice: parseFloat(document.getElementById('avgInvoice').value),
+        otd: parseFloat(document.getElementById('otd').value),
+        defect: parseFloat(document.getElementById('defect').value),
+        dso: parseFloat(document.getElementById('dso').value),
+        dio: parseFloat(document.getElementById('dio').value),
+        bounces: parseFloat(document.getElementById('bounces').value),
+        anchor: document.getElementById('anchor').value,
+        einv: document.getElementById('einv').value
+      };
+    }
+
+    function score(inp){
+      const sub = {
+        vintage: linear(inp.years, 0, 15),
+        revenue: linear(inp.revenue, 0, 2000),
+        growth:  linear(inp.revGrowth, -20, 60),
+        gst:     linear(inp.gstMonths, 0, 12),
+        digital: linear(inp.digitalShare, 0, 100),
+        de:      invLinear(inp.de, 0, 3),
+        dscr:    linear(inp.dscr, 0.8, 2.5),
+        invoice: linear(inp.avgInvoice, 0, 50),
+        otd:     linear(inp.otd, 60, 99),
+        defect:  invLinear(inp.defect, 0, 10),
+        dso:     invLinear(inp.dso, 0, 120),
+        dio:     invLinear(inp.dio, 0, 120),
+        bounces: invLinear(inp.bounces, 0, 6),
+        anchor:  yesNo(inp.anchor),
+        einv:    yesNo(inp.einv)
+      };
+      let typeAdj = 0; if(inp.businessType==='manufacturing') typeAdj=1.5; if(inp.businessType==='services') typeAdj=0.5;
+
+      let total = 0, rows=[];
+      WEIGHTS.forEach(w=>{
+        const s = clamp(sub[w.key]||0,0,100);
+        const weighted = s*(w.weight/100);
+        total += weighted; rows.push({label:w.label, s, w:w.weight, weighted});
+      });
+      total = clamp(total + typeAdj, 0, 100);
+
+      let band='B', note='Stable supplier profile', cls='ok';
+      if(total>=80){band='A'; note='Strong profile with low risk indicators'; cls='good';}
+      else if(total<60){band='C'; note='Weak profile; consider mitigants or lower limits'; cls='bad';}
+
+      return { total:Number(total.toFixed(1)), rows, band, note, cls };
+    }
+
+    const calcBtn=document.getElementById('calcBtn');
+    const printBtn=document.getElementById('printBtn');
+    const resetBtn=document.getElementById('resetBtn');
+    const resultBox=document.getElementById('result');
+    const scoreNum=document.getElementById('scoreNum');
+    const scoreBand=document.getElementById('scoreBand');
+    const scoreNote=document.getElementById('scoreNote');
+    const breakWrap=document.getElementById('breakdown');
+    const breakRows=document.getElementById('breakRows');
+    const totalWeighted=document.getElementById('totalWeighted');
+
+    calcBtn.addEventListener('click', ()=>{
+      const out = score(getInputs());
+      resultBox.style.display='';
+      scoreNum.textContent=out.total;
+      scoreBand.textContent=`Band ${out.band}`;
+      scoreBand.className=`band ${out.cls}`;
+      scoreNote.textContent=out.note;
+
+      breakWrap.style.display=''; breakRows.innerHTML='';
+      out.rows.forEach(r=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td>${r.label}</td><td class="right">${r.s.toFixed(1)}</td><td class="right">${r.w}%</td><td class="right">${r.weighted.toFixed(1)}</td>`;
+        breakRows.appendChild(tr);
+      });
+      totalWeighted.textContent=out.total.toFixed(1);
+      window.scrollTo({top:document.body.scrollHeight, behavior:'smooth'});
+    });
+
+    printBtn.addEventListener('click', ()=>window.print());
+    resetBtn.addEventListener('click', ()=>{
+      document.querySelectorAll('#formGrid input').forEach(i=>i.value='');
+      document.getElementById('businessType').value='manufacturing';
+      document.getElementById('anchor').value='yes';
+      document.getElementById('einv').value='yes';
+      resultBox.style.display='none'; breakWrap.style.display='none';
+      breakRows.innerHTML=''; totalWeighted.textContent='0.0'; scoreBand.className='band';
+    });
+  </script>
+</body>
+</html>
