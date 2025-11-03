@@ -4,86 +4,197 @@
   <meta charset="utf-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>FlowScore — MSME Supplier Credit Scoring Demo</title>
+  <title>FlowFin | Supplier–Retailer–Bank Portal & Credit Scoring</title>
   <style>
-    :root{ --bg:#0f172a; --panel:#111827; --muted:#94a3b8; --text:#e5e7eb; --brand:#22c55e; --brand2:#06b6d4; --warn:#f59e0b; --bad:#ef4444; --good:#10b981; --border:#1f2937; }
+    /* EY–Parthenon inspired theme: deep navy base, gold accent, clean cyan/sky support */
+    :root{
+      --bg:#0a1424;            /* deep navy */
+      --panel:#101b31;         /* darker panel */
+      --text:#e9edf4;          /* near-white */
+      --muted:#98a4b8;         /* slate */
+      --navy:#003a70;          /* parthenon blue */
+      --gold:#ffcd00;          /* EY gold */
+      --cyan:#00bcd4;          /* support accent */
+      --ok:#f59e0b;            /* amber */
+      --bad:#ef4444;           /* red */
+      --good:#10b981;          /* emerald */
+      --border:#1e2a42;        /* line */
+    }
     *{box-sizing:border-box}
-    body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial; background:linear-gradient(180deg,#0b1220 0%, #0f172a 100%); color:var(--text); }
-    header{position:sticky; top:0; z-index:10; border-bottom:1px solid var(--border); background:rgba(15,23,42,.75); backdrop-filter:blur(10px)}
-    .container{max-width:1100px; margin:0 auto; padding:16px}
-    .nav{display:flex; gap:12px; align-items:center; justify-content:space-between}
-    .brand{font-weight:700; letter-spacing:.2px}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+      color:var(--text);
+      background:linear-gradient(180deg,#071121 0%, #0a1424 60%, #0d1830 100%);
+    }
+
+    /* Top bar */
+    header{
+      position:sticky; top:0; z-index:20;
+      background:rgba(10,20,36,.8);
+      backdrop-filter:blur(10px);
+      border-bottom:1px solid var(--border);
+    }
+    .container{max-width:1200px; margin:0 auto; padding:14px 16px}
+    .nav{display:flex; align-items:center; justify-content:space-between; gap:12px}
+    .brand{
+      font-weight:800; letter-spacing:.2px;
+      display:flex; align-items:center; gap:10px
+    }
+    .brandMark{
+      width:18px; height:18px; background:var(--gold); transform:skew(-12deg); display:inline-block
+    }
     .tabs{display:flex; gap:8px; flex-wrap:wrap}
-    .tab{border:1px solid var(--border); padding:8px 12px; border-radius:999px; cursor:pointer; color:var(--muted); background:#0b1326}
-    .tab.active{color:#fff; background:#0c1b34; border-color:#234}
-    main{padding:24px 0}
-    .card{border:1px solid var(--border); background:rgba(17,24,39,.6); border-radius:16px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    .tab{
+      border:1px solid var(--border); color:var(--muted); background:#0b1528;
+      padding:8px 12px; border-radius:999px; cursor:pointer
+    }
+    .tab.active{color:#001b33; background:linear-gradient(90deg,var(--gold),#ffd84a); border-color:transparent; font-weight:700}
+
+    main{padding:22px 0}
+    .card{
+      border:1px solid var(--border);
+      background:linear-gradient(180deg, #0f1b33 0%, #0d182e 100%);
+      border-radius:18px; padding:20px; box-shadow:0 12px 30px rgba(0,0,0,.25)
+    }
     h1{font-size:28px; margin:0 0 6px}
-    h2{font-size:22px; margin:20px 0 10px}
-    h3{font-size:16px; margin:14px 0 8px; color:var(--muted)}
-    p{color:#cbd5e1; line-height:1.6}
+    h2{font-size:22px; margin:18px 0 10px}
+    h3{font-size:16px; margin:12px 0 8px; color:var(--muted)}
+    p{color:#ccd6e5; line-height:1.6}
+    .muted{color:var(--muted)}
+    .small{font-size:12px}
+
     .grid{display:grid; gap:14px}
+    .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
     .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
-    .label{font-size:13px; color:#a8b3c9; margin-bottom:6px; display:block}
-    input, select{width:100%; border:1px solid var(--border); background:#0b1326; color:#e2e8f0; padding:10px 12px; border-radius:10px; outline:none}
-    .row{display:flex; gap:10px; flex-wrap:wrap}
-    .btn{border:1px solid #234; background:#0c1b34; color:#e6f8ff; padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600}
-    .btn.primary{background:linear-gradient(90deg,var(--brand2),var(--brand)); border-color:transparent; color:#001b18}
-    .btn.ghost{background:transparent}
-    .pill{display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; border:1px solid var(--border); color:#c7d2fe}
+    .grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+    @media (max-width:980px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+
     .flow{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:12px 0 6px}
-    .node{padding:8px 14px; border-radius:999px; border:1px solid var(--border); background:#0b1326}
+    .node{padding:8px 14px; border-radius:999px; border:1px solid var(--border); background:#0b162a}
     .arrow{width:26px; height:2px; background:var(--muted); position:relative}
     .arrow::after{content:""; position:absolute; right:-4px; top:-3px; border-left:6px solid var(--muted); border-top:4px solid transparent; border-bottom:4px solid transparent}
-    .scoreBox{display:flex; align-items:center; gap:16px; padding:14px; border-radius:12px; border:1px solid var(--border); background:#0b1326; margin-top:10px}
-    .scoreBadge{min-width:76px; text-align:center; font-size:22px; font-weight:800; padding:10px 0; border-radius:10px; background:#081423; border:1px solid #1b2a46}
-    .band{font-weight:700}.ok{color:var(--warn)}.bad{color:var(--bad)}.good{color:var(--good)}
-    .muted{color:var(--muted)} .small{font-size:12px}
+
+    .label{font-size:13px; color:#aab6c8; margin-bottom:6px; display:block}
+    input,select{
+      width:100%; border:1px solid var(--border); background:#0b162a; color:#e6eef9;
+      padding:10px 12px; border-radius:10px; outline:none
+    }
+    input::placeholder{color:#6b7a93}
+    .row{display:flex; gap:10px; flex-wrap:wrap}
+    .btn{
+      border:1px solid var(--border); background:#0c1931; color:#e6f8ff;
+      padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:700
+    }
+    .btn.primary{background:linear-gradient(90deg,#ffd84a,var(--gold)); color:#132238; border-color:transparent}
+    .btn.ghost{background:transparent}
+    .pill{display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; border:1px solid var(--border); color:#c7d2fe}
+
+    .emph{color:var(--gold); font-weight:800}
+    .halo{
+      border-left:4px solid var(--gold); padding-left:12px; background:linear-gradient(90deg,rgba(255,205,0,.08),transparent);
+      border-radius:8px
+    }
+
     .table{width:100%; border-collapse:collapse; font-size:14px; margin-top:10px}
     .table th,.table td{border:1px solid var(--border); padding:8px}
     .right{text-align:right}
-    @media (max-width:900px){.grid-3{grid-template-columns:1fr}}
+
+    .scoreBox{display:flex; align-items:center; gap:16px; padding:14px; border-radius:12px; border:1px solid var(--border); background:#0b162a; margin-top:10px}
+    .scoreBadge{min-width:82px; text-align:center; font-size:24px; font-weight:900; padding:10px 0; border-radius:10px; background:#091426; border:1px solid #1b2a46}
+    .band{font-weight:800}
+    .ok{color:#f59e0b}.bad{color:#ef4444}.good{color:#10b981}
+
+    .member{display:flex; align-items:center; gap:12px; padding:12px; border:1px solid var(--border); border-radius:12px; background:#0b162a}
+    .avatar{width:44px; height:44px; border-radius:999px; background:linear-gradient(135deg,var(--gold),#ffe480)}
+    .name{font-weight:800}
+    .role{color:#aab6c8; font-size:13px}
   </style>
 </head>
 <body>
   <header>
     <div class="container nav">
-      <div class="brand">FlowScore — Supplier • Bank • Retailer</div>
+      <div class="brand"><span class="brandMark"></span> FlowFin Portal</div>
       <div class="tabs">
         <button class="tab active" data-tab="home">Home</button>
         <button class="tab" data-tab="how">How it Works</button>
+        <button class="tab" data-tab="factors">Factors</button>
         <button class="tab" data-tab="calc">Score Calculator</button>
+        <button class="tab" data-tab="team">Team</button>
       </div>
     </div>
   </header>
 
   <main class="container">
+    <!-- HOME -->
     <section class="card" id="home">
-      <h1>Platform concept: Supplier ↔ Retailer ↔ Bank</h1>
-      <p>This demo shows a simple supply chain finance loop and a lightweight supplier credit scoring model. Use the Score Calculator tab to enter supplier details and compute a score out of 100 with a factor breakdown.</p>
-      <h3>Flow</h3>
+      <h1>Connect Supplier • Retailer • Bank</h1>
+      <p class="halo">
+        FlowFin enables deep-tier financing with dynamic credit scoring and multi-lender bidding. Suppliers get cash early,
+        retailers keep payables intact, and banks deploy into verified receivables with risk controls and insurance.
+      </p>
+      <h3>Supply-chain finance loop</h3>
       <div class="flow">
-        <span class="node">Supplier</span><span class="arrow"></span>
-        <span class="node">Retailer (receives goods)</span><span class="arrow"></span>
-        <span class="node">Bank (pays Supplier)</span><span class="arrow"></span>
-        <span class="node">Supplier (working capital)</span>
+        <span class="node">Retailer places PO</span><span class="arrow"></span>
+        <span class="node">Supplier ships goods</span><span class="arrow"></span>
+        <span class="node">Invoice validated</span><span class="arrow"></span>
+        <span class="node">Bank advances funds</span><span class="arrow"></span>
+        <span class="node">Retailer settles later</span>
       </div>
-      <p class="small muted">In reverse-factoring flows, the retailer validates invoices; the bank finances the supplier; settlement occurs on due date while the supplier gets early cash.</p>
+      <p class="small muted">Reverse-factoring workflow: the buyer’s confirmation triggers financing; settlement happens on due date while the supplier receives early liquidity.</p>
     </section>
 
+    <!-- HOW IT WORKS -->
     <section class="card" id="how" style="display:none; margin-top:14px">
-      <h2>How it Works</h2>
-      <p>The calculator applies weights to MSME credit factors (vintage, revenues and growth, leverage and cashflow, compliance, operations, and digital adoption). Each input becomes a 0–100 sub-score; weighted sub-scores produce the overall FlowScore.</p>
-      <table class="table">
-        <thead><tr><th>Factor</th><th>Weight</th><th>Description</th></tr></thead>
-        <tbody id="weightsTable"></tbody>
-      </table>
-      <p class="small muted">Demo scoring only. Not financial advice.</p>
+      <h2>How the Portal Works</h2>
+      <div class="grid grid-2">
+        <div>
+          <h3>1) Onboard & Verify</h3>
+          <p>KYC, GST and Udyam checks, e-sign consent via Account Aggregator, anchor mapping and basic bank details. E-invoicing and ERP hooks enable seamless document flow.</p>
+          <h3>2) Invoice & Confirm</h3>
+          <p>Supplier uploads e-invoice or pulls from ERP; anchor/buyer validates quantity and quality; duplicate/fraud checks run in the background.</p>
+        </div>
+        <div>
+          <h3>3) FlowScore</h3>
+          <p>AI model converts vintage, compliance, cash-flow, operational reliability and buyer quality into a 0–100 score refreshed as data changes.</p>
+          <h3>4) Finance & Settle</h3>
+          <p>Multi-lender bids decide rate/limit; insurance can attach; supplier receives funds in T+1; buyer pays on due date; bank/insurer reconcile automatically.</p>
+        </div>
+      </div>
     </section>
 
+    <!-- FACTORS (no weights shown) -->
+    <section class="card" id="factors" style="display:none; margin-top:14px">
+      <h2>Credit Factors Considered (no weights displayed)</h2>
+      <div class="grid grid-2">
+        <div>
+          <ul>
+            <li><b>Business vintage</b> and continuity</li>
+            <li><b>Annual revenue</b> and <b>YoY growth</b></li>
+            <li><b>GST filing consistency</b> and e-invoicing adoption</li>
+            <li><b>Digital transaction share</b> and bank statement health</li>
+            <li><b>Leverage (D/E)</b> and <b>DSCR</b> (debt-service cushion)</li>
+            <li><b>Average invoice size</b> and buyer quality</li>
+          </ul>
+        </div>
+        <div>
+          <ul>
+            <li><b>On-time delivery rate</b> and <b>defect/return rate</b></li>
+            <li><b>Receivables days (DSO)</b> and <b>inventory days (DIO)</b></li>
+            <li><b>Cheque bounces</b> and banking discipline</li>
+            <li><b>Anchor confirmation</b> and deep-tier visibility</li>
+            <li><b>Sector momentum</b> and order pipeline</li>
+            <li><b>Policy alignment</b> (India Stack, AA/OCEN, TReDS/PSL readiness)</li>
+          </ul>
+        </div>
+      </div>
+      <p class="small muted">These factors power FlowScore for thin-file MSMEs while remaining compliant with Indian digital public infrastructure.</p>
+    </section>
+
+    <!-- CALCULATOR -->
     <section class="card" id="calc" style="display:none; margin-top:14px">
       <h2>Supplier Credit Score Calculator</h2>
-      <p class="small muted">Enter numbers within reasonable ranges; all fields contribute to the score.</p>
+      <p class="muted small">Enter reasonable values. All fields influence the final score (0–100). Result includes band and rationale.</p>
 
       <div class="grid grid-3" id="formGrid">
         <div><label class="label">Business Type</label>
@@ -103,8 +214,8 @@
         <div><label class="label">Average Invoice Size (₹ lakh)</label><input id="avgInvoice" type="number" min="0" step="0.01" placeholder="4"></div>
         <div><label class="label">On-time Delivery Rate (%)</label><input id="otd" type="number" min="0" max="100" placeholder="95"></div>
         <div><label class="label">Defect/Return Rate (%)</label><input id="defect" type="number" min="0" max="100" placeholder="1.5"></div>
-        <div><label class="label">Receivables Days (0–180)</label><input id="dso" type="number" min="0" max="365" placeholder="45"></div>
-        <div><label class="label">Inventory Days (0–180)</label><input id="dio" type="number" min="0" max="365" placeholder="35"></div>
+        <div><label class="label">Receivables Days (DSO)</label><input id="dso" type="number" min="0" max="365" placeholder="45"></div>
+        <div><label class="label">Inventory Days (DIO)</label><input id="dio" type="number" min="0" max="365" placeholder="35"></div>
         <div><label class="label">Cheque Bounces (last 6 months)</label><input id="bounces" type="number" min="0" max="50" placeholder="0"></div>
         <div><label class="label">Anchor Buyer Present</label>
           <select id="anchor"><option value="yes">Yes (rated buyer)</option><option value="no">No</option></select>
@@ -116,7 +227,7 @@
 
       <div class="row" style="margin-top:16px">
         <button class="btn primary" id="calcBtn">Calculate Score</button>
-        <button class="btn" id="printBtn" title="Print or Save as PDF">Print / Save PDF</button>
+        <button class="btn" id="printBtn" title="Print or Save PDF">Print / Save PDF</button>
         <button class="btn ghost" id="resetBtn">Reset</button>
         <span class="pill">Demo only</span>
       </div>
@@ -139,25 +250,62 @@
       </div>
     </section>
 
-    <footer class="muted small" style="margin-top:14px">© FlowScore demo. Local-only calculator for educational purposes.</footer>
+    <!-- TEAM -->
+    <section class="card" id="team" style="display:none; margin-top:14px">
+      <h2>Team</h2>
+      <div class="grid grid-3">
+        <div class="member">
+          <div class="avatar"></div>
+          <div>
+            <div class="name">Ravinder Singh</div>
+            <div class="role">IIM Lucknow — Co-founder</div>
+          </div>
+        </div>
+        <div class="member">
+          <div class="avatar"></div>
+          <div>
+            <div class="name">Riya Raj</div>
+            <div class="role">IIM Lucknow — Co-founder</div>
+          </div>
+        </div>
+        <div class="member">
+          <div class="avatar"></div>
+          <div>
+            <div class="name">Vivek Patel</div>
+            <div class="role">IIM Lucknow — Co-founder</div>
+          </div>
+        </div>
+      </div>
+      <p class="small muted" style="margin-top:10px">Cross-functional founders combining product, credit, and GTM for deep-tier MSME finance.</p>
+    </section>
+
+    <footer class="muted small" style="margin-top:14px">© FlowFin demo. Static portal for educational purposes.</footer>
   </main>
 
   <script>
+    /* ---------- Tabs ---------- */
     const tabs = document.querySelectorAll('.tab');
-    const sections = { home:document.getElementById('home'), how:document.getElementById('how'), calc:document.getElementById('calc') };
+    const sections = {
+      home:document.getElementById('home'),
+      how:document.getElementById('how'),
+      factors:document.getElementById('factors'),
+      calc:document.getElementById('calc'),
+      team:document.getElementById('team')
+    };
     tabs.forEach(t=>t.addEventListener('click', ()=>{
       tabs.forEach(x=>x.classList.remove('active')); t.classList.add('active');
       const id = t.dataset.tab;
       Object.entries(sections).forEach(([k,el])=> el.style.display = (k===id)?'':'none');
-      if(id==='how') renderWeights();
+      if(id==='how') renderWeightsForInfo();  // fills "How it Works" table
     }));
 
+    /* ---------- Scoring weights (kept internal; Factors tab shows no percentages) ---------- */
     const WEIGHTS = [
-      {key:'vintage', label:'Business Vintage (years)', weight:10},
-      {key:'revenue', label:'Annual Revenue', weight:10},
-      {key:'growth',  label:'YoY Revenue Growth', weight:8},
-      {key:'gst',     label:'GST Compliance (months filed)', weight:8},
-      {key:'digital', label:'Digital Transaction Share', weight:6},
+      {key:'vintage', label:'Business Vintage (years)', weight:9},
+      {key:'revenue', label:'Annual Revenue', weight:8},
+      {key:'growth',  label:'YoY Revenue Growth', weight:7},
+      {key:'gst',     label:'GST Filing Consistency', weight:7},
+      {key:'digital', label:'Digital Transaction Share', weight:5},
       {key:'de',      label:'Leverage (D/E) — lower better', weight:8},
       {key:'dscr',    label:'DSCR — higher better', weight:10},
       {key:'invoice', label:'Average Invoice Size', weight:4},
@@ -166,29 +314,45 @@
       {key:'dso',     label:'Receivables Days — lower better', weight:6},
       {key:'dio',     label:'Inventory Days — lower better', weight:4},
       {key:'bounces', label:'Cheque Bounces — fewer better', weight:6},
-      {key:'anchor',  label:'Anchor Buyer Present', weight:4},
-      {key:'einv',    label:'E-Invoicing Adoption', weight:4},
+      {key:'anchor',  label:'Anchor Buyer Present', weight:6},
+      {key:'einv',    label:'E-Invoicing Adoption', weight:2}
     ];
-
-    function renderWeights(){
-      const tb = document.getElementById('weightsTable'); tb.innerHTML='';
+    /* Informational rendering for the HOW page (no weights in Factors page) */
+    function renderWeightsForInfo(){
+      const tb = document.getElementById('weightsTable');
+      if(!tb){ // create once
+        const how = document.getElementById('how');
+        const tbl = document.createElement('table'); tbl.className='table';
+        tbl.innerHTML = '<thead><tr><th>Factor</th><th>What it captures</th></tr></thead><tbody id="weightsTable"></tbody>';
+        how.appendChild(tbl);
+      }
+      const body = document.getElementById('weightsTable');
+      body.innerHTML='';
       const desc = {
-        vintage:'Years of consistent operations', revenue:'Scale of business activity',
-        growth:'Momentum and expansion trajectory', gst:'Regulatory compliance signal',
-        digital:'Formalization and traceability', de:'Capital structure risk',
-        dscr:'Cash-flow cushion to service debt', invoice:'Ticket size / buyer quality proxy',
-        otd:'Operational reliability', defect:'Quality consistency',
-        dso:'Cash conversion speed', dio:'Inventory holding efficiency',
-        bounces:'Banking discipline', anchor:'Credit enhancement via rated buyer',
-        einv:'System/process maturity'
+        vintage:'Years of consistent operations and renewal risk',
+        revenue:'Scale of activity and capacity to serve anchors',
+        growth:'Momentum and sector tailwinds',
+        gst:'Regulatory discipline and continuity of business',
+        digital:'Traceability via UPI/POS/Bank rails',
+        de:'Capital structure risk',
+        dscr:'Cash-flow cushion to service debt',
+        invoice:'Ticket size and buyer quality proxy',
+        otd:'Operational reliability in fulfilment',
+        defect:'Quality control and returns discipline',
+        dso:'Cash conversion speed',
+        dio:'Inventory efficiency',
+        bounces:'Banking discipline',
+        anchor:'Rated buyer confirmation and deep-tier visibility',
+        einv:'Process maturity and data availability'
       };
       WEIGHTS.forEach(w=>{
-        const tr=document.createElement('tr');
-        tr.innerHTML=`<td>${w.label}</td><td>${w.weight}%</td><td>${desc[w.key]}</td>`;
-        tb.appendChild(tr);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${w.label}</td><td>${desc[w.key]}</td>`;
+        body.appendChild(tr);
       });
     }
 
+    /* ---------- Normalizers (0–100 sub-scores) ---------- */
     const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
     const invLinear=(v,min,max)=> isNaN(v)?0 : v<=min?100 : v>=max?0 : (max-v)*100/(max-min);
     const linear=(v,min,max)=>   isNaN(v)?0 : v<=min?0   : v>=max?100: (v-min)*100/(max-min);
@@ -215,15 +379,16 @@
       };
     }
 
+    /* ---------- Scoring aligned to your doc (adds anchor/industry nudges and compliance bias) ---------- */
     function score(inp){
       const sub = {
         vintage: linear(inp.years, 0, 15),
-        revenue: linear(inp.revenue, 0, 2000),
+        revenue: linear(inp.revenue, 0, 2000),     // ₹0–200 Cr (in lakh)
         growth:  linear(inp.revGrowth, -20, 60),
         gst:     linear(inp.gstMonths, 0, 12),
         digital: linear(inp.digitalShare, 0, 100),
         de:      invLinear(inp.de, 0, 3),
-        dscr:    linear(inp.dscr, 0.8, 2.5),
+        dscr:    linear(inp.dscr, 0.9, 2.5),
         invoice: linear(inp.avgInvoice, 0, 50),
         otd:     linear(inp.otd, 60, 99),
         defect:  invLinear(inp.defect, 0, 10),
@@ -233,23 +398,38 @@
         anchor:  yesNo(inp.anchor),
         einv:    yesNo(inp.einv)
       };
-      let typeAdj = 0; if(inp.businessType==='manufacturing') typeAdj=1.5; if(inp.businessType==='services') typeAdj=0.5;
+
+      // Small business-type nudge (manufacturing often has stronger asset/process base)
+      let typeAdj = 0;
+      if (inp.businessType === 'manufacturing') typeAdj = 1.5;
+      if (inp.businessType === 'services') typeAdj = 0.5;
+
+      // Compliance bias: reward full GST filing & e-invoicing together (+1), penalize poor discipline (-1)
+      let complianceAdj = 0;
+      if ((sub.gst >= 95) && (sub.einv === 100)) complianceAdj += 1;
+      if (sub.gst < 40 || sub.bounces < 40) complianceAdj -= 1;
+
+      // Anchor premium: stronger buyer confirmation upsides score slightly
+      let anchorAdj = (sub.anchor === 100) ? 1 : 0;
 
       let total = 0, rows=[];
       WEIGHTS.forEach(w=>{
-        const s = clamp(sub[w.key]||0,0,100);
+        const s = clamp(sub[w.key]||0, 0, 100);
         const weighted = s*(w.weight/100);
-        total += weighted; rows.push({label:w.label, s, w:w.weight, weighted});
+        total += weighted;
+        rows.push({label:w.label, s, w:w.weight, weighted});
       });
-      total = clamp(total + typeAdj, 0, 100);
+      total = clamp(total + typeAdj + complianceAdj + anchorAdj, 0, 100);
 
-      let band='B', note='Stable supplier profile', cls='ok';
-      if(total>=80){band='A'; note='Strong profile with low risk indicators'; cls='good';}
-      else if(total<60){band='C'; note='Weak profile; consider mitigants or lower limits'; cls='bad';}
+      // Bands and narrative aligned to your slide’s positioning
+      let band='B', note='Balanced profile; finance with standard terms and monitoring.', cls='ok';
+      if(total>=85){ band='A'; note='Strong, compliant, anchor-validated supplier; suitable for faster disbursal and better pricing.'; cls='good'; }
+      else if(total<60){ band='C'; note='Weak profile; consider lower limits, insurance, or anchor guarantees before disbursal.'; cls='bad'; }
 
       return { total:Number(total.toFixed(1)), rows, band, note, cls };
     }
 
+    /* ---------- Wire up UI ---------- */
     const calcBtn=document.getElementById('calcBtn');
     const printBtn=document.getElementById('printBtn');
     const resetBtn=document.getElementById('resetBtn');
